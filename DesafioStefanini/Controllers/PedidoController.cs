@@ -1,4 +1,5 @@
 ﻿using DesafioStefanini.Models;
+using DesafioStefanini.Models.Request;
 using DesafioStefanini.Service.Interface;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -28,7 +29,7 @@ namespace DesafioStefanini.Controllers
         }
         
         [HttpPost]
-        public IActionResult Post([FromBody] Pedido pedido)
+        public IActionResult Post([FromBody] PedidoRequest pedido)
         {
             if (pedido is null)
             {

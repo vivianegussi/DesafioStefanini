@@ -1,15 +1,14 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace DesafioStefanini.Models
+namespace DesafioStefanini.Models.Response
 {
-    public class Pedido
+    public class PedidoResponse
     {
-        [Key]
         public int Id { get; set; }
         public string? NomeCliente { get; set; }
         public string? EmailCliente { get; set; }
-        public DateTime? DataCriacao { get; set; }
+        public decimal? ValorTotal { get; set; }
         public byte Pago { get; set; }
-        public virtual ICollection<ItensPedido>? ItensPedido { get; set; } 
+        public virtual ICollection<ItensPedidoResponse>? ItensPedido { get; set; }
     }
 }

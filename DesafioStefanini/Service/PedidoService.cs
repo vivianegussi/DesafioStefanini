@@ -1,6 +1,10 @@
 ﻿using DesafioStefanini.Models;
+using DesafioStefanini.Models.Request;
+using DesafioStefanini.Models.Response;
+using DesafioStefanini.Repository;
 using DesafioStefanini.Repository.Interfaces;
 using DesafioStefanini.Service.Interface;
+using Microsoft.AspNetCore.Http.Connections;
 
 namespace DesafioStefanini.Service
 {
@@ -8,13 +12,39 @@ namespace DesafioStefanini.Service
     {
 
         private readonly IPedidoRepository _pedidoRepository;
-        public PedidoService(IPedidoRepository pedidoRepository)
+        private readonly IItensPedidoRepository _itensPedidoRepository;
+        public PedidoService(IPedidoRepository pedidoRepository, IItensPedidoRepository itensPedidoRepository)
         {
             _pedidoRepository = pedidoRepository;
+            _itensPedidoRepository = itensPedidoRepository;
         }
-        public Pedido Create(Pedido pedido)
+        
+        
+        public PedidoResponse Create(PedidoRequest pedido)
         {
-            return _pedidoRepository.Create(pedido);
+            var novoPedido = new Pedido
+            {
+                NomeCliente = pedido.NomeCliente,
+                EmailCliente = pedido.EmailCliente,
+                DataCriacao = DateTime.Now,
+                Pago = pedido.Pago
+            };
+
+            novoPedido = _pedidoRepository.Create(novoPedido);
+
+            pedido.Produtos.ToList().ForEach(pr =>
+            {
+                var itensPedido = new ItensPedido
+                {
+                    PedidoId = novoPedido.Id,
+                    ProdutoId = pr.Id,
+                    Quantidade = pr.Quantidade
+                };
+
+                _itensPedidoRepository.Create(itensPedido);
+            });
+            
+            return GetById(novoPedido.Id);
         }
 
         public bool Delete(int id)
@@ -22,14 +52,71 @@ namespace DesafioStefanini.Service
             return _pedidoRepository.Delete(id);
         }
 
-        public List<Pedido> GetAll()
+        public List<PedidoResponse> GetAll()
         {
-            return _pedidoRepository.GetAll();
+            var pedidos = _pedidoRepository.GetAll();
+
+            var response = new List<PedidoResponse>();
+
+
+            pedidos.ForEach(p =>
+            {
+                var itens = new List<ItensPedidoResponse>();
+
+                p.ItensPedido?.ToList().ForEach(ip =>
+                {
+                    itens.Add(new ItensPedidoResponse
+                    {
+                        Id = ip.Id,
+                        ProdutoId = ip.Produto.Id,
+                        NomeProduto = ip.Produto.NomeProduto,
+                        ValorUnitario = ip.Produto.Valor,
+                        Quantidade = ip.Quantidade
+                    });
+                });
+
+                response.Add(new PedidoResponse
+                {
+                    Id = p.Id,
+                    NomeCliente = p.NomeCliente,
+                    EmailCliente = p.EmailCliente,
+                    Pago = p.Pago,
+                    ValorTotal = itens.Select(i => i.ValorUnitario * i.Quantidade).Sum(),
+                    ItensPedido = itens
+                });
+
+            });
+
+            return response;
         }
 
-        public Pedido GetById(int id)
+        public PedidoResponse GetById(int id)
         {
-            return _pedidoRepository.GetById(id);
+            var pedido = _pedidoRepository.GetById(id);
+
+            var itens = new List<ItensPedidoResponse>();
+
+            pedido.ItensPedido?.ToList().ForEach(ip =>
+            {
+                itens.Add(new ItensPedidoResponse
+                {
+                    Id = ip.Id,
+                    ProdutoId = ip.Produto.Id,
+                    NomeProduto = ip.Produto.NomeProduto,
+                    ValorUnitario = ip.Produto.Valor,
+                    Quantidade = ip.Quantidade
+                });
+            });
+
+            return new PedidoResponse
+            {
+                Id = pedido.Id,
+                NomeCliente = pedido.NomeCliente,
+                EmailCliente = pedido.EmailCliente,
+                Pago = pedido.Pago,
+                ValorTotal = itens.Select(i => i.ValorUnitario * i.Quantidade).Sum(),
+                ItensPedido = itens
+            };
         }
 
         public Pedido Update(Pedido pedido)

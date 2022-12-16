@@ -1,5 +1,6 @@
 ﻿using DesafioStefanini.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Scaffolding;
 using System.Reflection.PortableExecutable;
 
 namespace DesafioStefanini.Context
@@ -10,6 +11,15 @@ namespace DesafioStefanini.Context
 
         public DataContext(DbContextOptions<DataContext> options) : base(options)
         {
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Pedido>()
+                .HasMany(p => p.ItensPedido);
+            
+            modelBuilder.Entity<ItensPedido>()
+                .HasOne(p => p.Produto);
         }
 
         public DbSet<Pedido> Pedido { get; set; }

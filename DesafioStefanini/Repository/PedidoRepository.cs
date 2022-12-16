@@ -1,6 +1,7 @@
 ﻿using DesafioStefanini.Context;
 using DesafioStefanini.Models;
 using DesafioStefanini.Repository.Interfaces;
+using Microsoft.EntityFrameworkCore;
 
 namespace DesafioStefanini.Repository
 {
@@ -35,12 +36,19 @@ namespace DesafioStefanini.Repository
 
         public List<Pedido> GetAll()
         {
-            return _context.Pedido.ToList();
+            return _context.Pedido
+                .Include(p => p.ItensPedido!)
+                    .ThenInclude(ip => ip.Produto)
+                .ToList();
         }
 
         public Pedido GetById(int id)
         {
-            return _context.Pedido.FirstOrDefault(p => p.Id == id);
+            return _context.
+                Pedido
+                .Include(p => p.ItensPedido!)
+                    .ThenInclude(ip => ip.Produto)
+                .FirstOrDefault(p => p.Id == id);
         }
 
         public Pedido Update(Pedido pedido)

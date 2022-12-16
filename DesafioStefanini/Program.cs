@@ -18,6 +18,7 @@ builder.Services.AddDbContext<DataContext>(options =>
 );
 
 builder.Services.AddScoped<IPedidoRepository, PedidoRepository>();
+builder.Services.AddScoped<IItensPedidoRepository, ItensPedidoRepository>();
 builder.Services.AddScoped<IPedidoService, PedidoService>();
 
 builder.Services.AddCors();

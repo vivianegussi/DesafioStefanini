@@ -1,13 +1,15 @@
 ﻿using DesafioStefanini.Models;
+using DesafioStefanini.Models.Request;
+using DesafioStefanini.Models.Response;
 
 namespace DesafioStefanini.Service.Interface
 {
     public interface IPedidoService
     {
-        public List<Pedido> GetAll();
+        public List<PedidoResponse> GetAll();
 
-        public Pedido GetById(int id);
-        public Pedido Create(Pedido pedido);
+        public PedidoResponse GetById(int id);
+        public PedidoResponse Create(PedidoRequest pedido);
         public Pedido Update(Pedido pedido);
         public bool Delete(int id);
     }
